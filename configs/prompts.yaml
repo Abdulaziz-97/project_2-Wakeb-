@@ -1,0 +1,65 @@
+# ── Teacher Prompts & Exemplar Configuration ──────────────────────
+# Used by teacher_label.py to generate pseudo-labels.
+
+# Each class has:
+#   - prompts: list of text prompts (for open-vocab detectors)
+#   - merge_into: final class_id all sub-prompts collapse to
+#   - exemplar_boxes: optional pos/neg bounding boxes for few-shot
+
+# ── Class prompts ─────────────────────────────────────────────────
+class_prompts:
+  suv:
+    class_id: 0
+    prompts:
+      - "suv"
+      - "sport utility vehicle"
+    merge_into: 0
+
+  sedan:
+    class_id: 1
+    prompts:
+      - "sedan"
+      - "car"
+      - "passenger car"
+    merge_into: 1
+
+  bus:
+    class_id: 2
+    prompts:
+      - "bus"
+      - "shuttle bus"
+      - "city bus"
+    merge_into: 2
+
+  truck:
+    class_id: 3
+    prompts:
+      - "truck"
+      - "pickup truck"
+      - "box truck"
+      - "semi truck"
+      - "tractor trailer"
+      - "delivery truck"
+    merge_into: 3
+
+# ── Merge / dedup settings ────────────────────────────────────────
+merge:
+  iou_threshold: 0.5        # IoU above this → merge into one instance
+  score_threshold: 0.25     # drop predictions below this confidence
+
+# ── Exemplar boxes (optional, per-class) ──────────────────────────
+# Format: [x1, y1, x2, y2] in pixel coords on a reference tile.
+# positive = examples of the class; negative = NOT this class.
+exemplar_boxes:
+  suv:
+    positive: []             # TODO: add exemplar boxes after first QA pass
+    negative: []
+  sedan:
+    positive: []
+    negative: []
+  bus:
+    positive: []
+    negative: []
+  truck:
+    positive: []
+    negative: []

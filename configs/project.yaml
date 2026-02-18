@@ -1,0 +1,66 @@
+# ── Project Configuration ──────────────────────────────────────────
+# Central config for the aerial vehicle instance-segmentation pipeline.
+
+# ── Paths ──────────────────────────────────────────────────────────
+paths:
+  raw_images: /home/wakeb/Downloads/my_20_images
+  tiles_dir: /home/wakeb/project_2-Wakeb-/data/tiles
+  teacher_preds_dir: /home/wakeb/project_2-Wakeb-/data/teacher_preds
+  cvat_export_dir: /home/wakeb/project_2-Wakeb-/data/cvat_export
+  canonical_annots_dir: /home/wakeb/project_2-Wakeb-/data/canonical_annots
+  yolo_dataset_dir: /home/wakeb/project_2-Wakeb-/yolo_dataset
+  student_weights: /home/wakeb/project_2-Wakeb-/runs/segment/train/weights/best.pt
+  sam_model: /home/wakeb/project_2-Wakeb-/sam3.pt
+
+# ── Tiling ─────────────────────────────────────────────────────────
+tiling:
+  tile_size: 1536
+  overlap: 384
+  stride: 1152          # tile_size - overlap
+
+# ── Classes (stable IDs everywhere) ───────────────────────────────
+classes:
+  0: suv
+  1: sedan
+  2: bus
+  3: truck               # includes pickup + box truck + semi/tractor-trailer
+
+# ── Training ───────────────────────────────────────────────────────
+training:
+  model: yolo11s-seg.pt   # small model – best for small noisy datasets
+  imgsz: 1536
+  epochs: 500
+  batch: 4               # batch 4 for small model
+  device: 0              # cuda:0
+  workers: 8
+  patience: 100          # give it time to converge with small dataset
+
+# ── On-the-fly augmentations (no extra images created) ────────────
+# Conservative: mosaic/mixup DISABLED (amplify noise with bad labels)
+# Only safe geometric + color augmentations
+augmentation:
+  mosaic: 0.0            # DISABLED – compounds label noise
+  copy_paste: 0.1        # low copy-paste (helps instance seg)
+  mixup: 0.0             # DISABLED – compounds label noise
+  scale: 0.3             # moderate scale ±30%
+  translate: 0.1         # translate ±10%
+  degrees: 10.0          # rotation ±10° (aerial views)
+  flipud: 0.5            # vertical flip
+  fliplr: 0.5            # horizontal flip
+  hsv_h: 0.015           # HSV-hue
+  hsv_s: 0.5             # HSV-saturation
+  hsv_v: 0.3             # HSV-value
+  erasing: 0.0           # disabled
+  close_mosaic: 0        # N/A since mosaic=0
+
+# ── Train/Val split ───────────────────────────────────────────────
+split:
+  train_ratio: 0.7       # 80/30 split for more val tiles
+  seed: 42
+
+# ── Error mining heuristics ───────────────────────────────────────
+mining:
+  low_conf_threshold: 0.35
+  overlap_iou_threshold: 0.5
+  min_mask_area_ratio: 0.001   # mask area / tile area
+  top_k_hard: 50               # how many hard tiles to flag
