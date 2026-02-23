@@ -40,6 +40,7 @@ def tile_image(
     overlap: int = 384,
     train_ratio: float = 0.8,
     seed: int = 42,
+    source_subdir: str = "",
 ) -> list:
     """Tile one image and return manifest entries."""
     stride = tile_size - overlap
@@ -72,7 +73,8 @@ def tile_image(
             else:
                 tile = img[y0:y1, x0:x1]
 
-            tile_name = f"{src_name}__x{x0}_y{y0}.jpg"
+            prefix = f"{source_subdir}__" if source_subdir else ""
+            tile_name = f"{prefix}{src_name}__x{x0}_y{y0}.jpg"
             tile_path = os.path.join(output_dir, tile_name)
             cv2.imwrite(tile_path, tile, [cv2.IMWRITE_JPEG_QUALITY, 95])
 
@@ -81,6 +83,7 @@ def tile_image(
                     "tile_path": tile_path,
                     "tile_name": tile_name,
                     "source_image": os.path.basename(img_path),
+                    "source_subdir": source_subdir,
                     "source_w": w,
                     "source_h": h,
                     "x_offset": x0,
@@ -98,6 +101,8 @@ def main():
     parser.add_argument("--input-dir", required=True, help="Dir with raw aerial images")
     parser.add_argument("--output-dir", required=True, help="Dir for tiled outputs")
     parser.add_argument("--config", default="configs/project.yaml", help="Project config")
+    parser.add_argument("--recursive", action="store_true",
+                        help="Search input-dir recursively for images in subfolders")
     args = parser.parse_args()
 
     cfg = load_config(args.config)
@@ -109,11 +114,19 @@ def main():
     os.makedirs(args.output_dir, exist_ok=True)
 
     exts = {".jpg", ".jpeg", ".png", ".tif", ".tiff", ".bmp"}
-    images = sorted(
-        p
-        for p in Path(args.input_dir).iterdir()
-        if p.suffix.lower() in exts
-    )
+    if args.recursive:
+        images = sorted(
+            p
+            for p in Path(args.input_dir).rglob("*")
+            if p.is_file() and p.suffix.lower() in exts
+            and p.parent != Path(args.input_dir)  # skip loose root-level files
+        )
+    else:
+        images = sorted(
+            p
+            for p in Path(args.input_dir).iterdir()
+            if p.suffix.lower() in exts
+        )
 
     if not images:
         print(f"[ERROR] No images found in {args.input_dir}", file=sys.stderr)
@@ -123,8 +136,11 @@ def main():
 
     manifest = []
     for img_path in images:
+        # Capture the immediate parent folder name as a class hint (e.g. "bus", "Truck")
+        subdir = img_path.parent.name if img_path.parent.name != Path(args.input_dir).name else ""
         entries = tile_image(
-            str(img_path), args.output_dir, tile_size, overlap, train_ratio, seed
+            str(img_path), args.output_dir, tile_size, overlap, train_ratio, seed,
+            source_subdir=subdir,
         )
         manifest.extend(entries)
         print(f"  {img_path.name}  →  {len(entries)} tiles  (split={entries[0]['split'] if entries else '?'})")

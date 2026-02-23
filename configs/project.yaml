@@ -3,14 +3,14 @@
 
 # ── Paths ──────────────────────────────────────────────────────────
 paths:
-  raw_images: /home/wakeb/Downloads/my_20_images
-  tiles_dir: /home/wakeb/project_2-Wakeb-/data/tiles
-  teacher_preds_dir: /home/wakeb/project_2-Wakeb-/data/teacher_preds
-  cvat_export_dir: /home/wakeb/project_2-Wakeb-/data/cvat_export
-  canonical_annots_dir: /home/wakeb/project_2-Wakeb-/data/canonical_annots
-  yolo_dataset_dir: /home/wakeb/project_2-Wakeb-/yolo_dataset
-  student_weights: /home/wakeb/project_2-Wakeb-/runs/segment/train/weights/best.pt
-  sam_model: /home/wakeb/project_2-Wakeb-/sam3.pt
+  raw_images: Images
+  tiles_dir: data/tiles
+  teacher_preds_dir: data/teacher_preds
+  cvat_export_dir: data/cvat_export
+  canonical_annots_dir: data/canonical_annots
+  yolo_dataset_dir: yolo_dataset
+  student_weights: runs/segment/train/weights/best.pt
+  sam_model: sam3.pt
 
 # ── Tiling ─────────────────────────────────────────────────────────
 tiling:

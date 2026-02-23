@@ -1,4 +1,4 @@
-path: /home/wakeb/project_2-Wakeb-/yolo_dataset
+path: C:\Users\Azooo\project_2-Wakeb-\yolo_dataset
 train: images/train
 val: images/val
 names:
