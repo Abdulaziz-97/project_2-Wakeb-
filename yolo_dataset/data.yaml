@@ -1,8 +1,0 @@
-path: C:\Users\Azooo\project_2-Wakeb-\yolo_dataset
-train: images/train
-val: images/val
-names:
-  0: suv
-  1: sedan
-  2: bus
-  3: truck
